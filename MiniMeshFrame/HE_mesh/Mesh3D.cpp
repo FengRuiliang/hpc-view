@@ -1064,7 +1064,7 @@ bool Mesh3D::computeSubgraph(int flag)
 			for (int k = 0; k < pvertices_list_->size(); k++)
 			{
 				//pvertices_list_.at(k).sumVector = (0.0, 0.0, 0.0);
-				pvertices_list_->at(k)->truth = true;
+				pvertices_list_->at(k)->truth =true;
 				pvertices_list_->at(k)->set_seleted(UNSELECTED);
 			}
 			ComputeAngle(j, pvertices_list_->at(j)->sumVector);
@@ -1121,7 +1121,16 @@ void Mesh3D::ComputeAngle(int id, Vec3f sum)
 			ComputeAngle(neighbor_.id(), sum);
 			Vec3f vector_ = neighbor_.position() - root.position();
 			vector_.normalize();
-			root.truth = ((bool)vector_.dot(sum / sum.length()) > 0.3420) && root.truth&&neighbor_.truth;
+			bool temp;
+			if (vector_.dot(sum / sum.length()) > 0.3420)
+			{
+				temp = true;
+			}
+			else
+			{
+				temp = false;
+			}
+			root.truth = temp&& root.truth&&neighbor_.truth;
 		}
 	}
 	return;
@@ -1136,16 +1145,8 @@ bool Mesh3D::findsubgraph(int * roots_, int num_roots_, int * cuts, int num_cuts
 		HE_vert& tosplitVert_ = *(pvertices_list_->at(roots_[i]));
 		InsertVertex(tosplitVert_.position());
 		(*(pvertices_list_->rbegin()))->vert_pair_ = roots_[i];
-		//HE_vert* ver_split_(vertex.position());//\D0\E9\C4\E2\B3\F6һ\B8\F6\B5㡣
-		//ver_split_->id_ = static_cast<int>(pvertices_list_->size());
-		//ver_split_->vert_pair_ = roots_[i];
-		//vertex.vert_pair_ = static_cast<int>(pvertices_list_->size());//no need to do this 
-		//pvertices_list_->push_back(ver_split_);//set pair to each other.
-											   //cout << " cutchoice is:";
-		//
 		for (auto iter = tosplitVert_.cutedpoints[cuts[i]].begin(); iter != tosplitVert_.cutedpoints[cuts[i]].end(); iter++)
 		{
-			//cout << *iter + 1;
 			(*(pvertices_list_->rbegin()))->neighbor_search_.push_back(tosplitVert_.neighborIdx[*iter]);//add neighbor to new vertex
 			HE_vert* vert_neighbor_ = pvertices_list_->at(tosplitVert_.neighborIdx[*iter]);
 			auto find_ = find(vert_neighbor_->neighbor_search_.begin(), vert_neighbor_->neighbor_search_.end(), tosplitVert_.id());//modify neighbor vertex's neighbor
@@ -1159,7 +1160,6 @@ bool Mesh3D::findsubgraph(int * roots_, int num_roots_, int * cuts, int num_cuts
 		{
 			return false;
 		}
-		//cout << endl;
 	}
 	for (int i = 0; i < pvertices_list_->size(); i++)
 	{
